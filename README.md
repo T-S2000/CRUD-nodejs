@@ -1,5 +1,13 @@
 # CRUD-nodejs
 
+## Description
+
+- AWS S3 bucket like Backend Application(beta).
+- You can create,delete and list buckets.
+- You can upload/update file, get file, delete file, list file based on bucket.
+- Pinata and mongoDB is used in this project.
+- This is a nodejs application. 
+
 ## Setup
 
 1. Clone the repository.
