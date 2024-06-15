@@ -7,18 +7,17 @@ const uploadFile = async (req, res) => {
         const file = req.file;
         if(!file) return res.status(404).json({ message: 'File not found' });
         const result = await pinFileToIPFS(file.path);
-        
-        if(result.isDuplicate == false){
-            const newFile = new File({
-                name: file.originalname,
-                hash: result.IpfsHash,
-                bucketId: req.params.bucketId,
-            });
 
-            await newFile.save();
-        }else{
-            await File.findOneAndUpdate({hash: result.IpfsHash},{timestamp: Date.now()},{returnOriginal: false});
+        const newFile = new File({
+            name: file.originalname,
+            hash: result.IpfsHash,
+            bucketId: req.params.bucketId,
+        });
+        
+        if(result.isDuplicate == true){
+            await File.findOneAndDelete({name: file.originalname});
         }
+        await newFile.save();
         return res.status(200).json(newFile);
     } catch (error) {
         res.status(500).json({ message: 'Failed to upload file', error: error });
@@ -27,7 +26,7 @@ const uploadFile = async (req, res) => {
 
 const getFile = async (req, res) => {
     try {
-        const file = await File.findById(req.params.fileId);
+        const file = await File.findById({_id: req.params.fileId});
         if (!file) return res.status(404).json({ message: 'File not found' });
 
         const pinataGatewayUrl = `http://gateway.pinata.cloud/ipfs/${file.hash}`;
