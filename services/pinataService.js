@@ -32,14 +32,18 @@ const pinFileToIPFS = async (filePath) => {
 };
 
 const unpinFileFromIPFS = async (hash) => {
-    const url = `https://api.pinata.cloud/pinning/unpin/${hash}`;
+    try {
+        const url = `https://api.pinata.cloud/pinning/unpin/${hash}`;
     
-    await axios.delete(url,{
-        headers: {
-            pinata_api_key: PINATA_API_KEY,
-            pinata_secret_api_key: PINATA_SECRET_KEY,
-        }
-    })
+        await axios.delete(url,{
+            headers: {
+                pinata_api_key: PINATA_API_KEY,
+                pinata_secret_api_key: PINATA_API_SECRET,
+            }
+        })    
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 module.exports = { pinFileToIPFS, unpinFileFromIPFS };
