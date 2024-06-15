@@ -1,4 +1,4 @@
-const { pinFileToIPFS } = require('../services/pinataService');
+const { pinFileToIPFS, unpinFileFromIPFS } = require('../services/pinataService');
 const File = require('../models/file');
 const axios = require('axios');
 const fs = require('fs');
@@ -58,7 +58,11 @@ const listFiles = async (req, res) => {
 
 const deleteFile = async (req, res) => {
     try {
-        await File.findByIdAndDelete(req.params.fileId);
+        const file = await File.findById(req.params.fileId);
+        if (!file) return res.status(404).json({ error: 'File not found' });
+        await unpinFileFromIPFS(file.hash);
+        await file.remove();
+
         res.status(200).json({ message: 'File deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete file', error: error });
