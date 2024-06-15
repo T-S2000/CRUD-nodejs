@@ -27,7 +27,7 @@ const deleteBucket = async (req, res) => {
         if(files.length > 0) return res.status(400).json({ message: 'Bucket contains files' });
         await Bucket.findByIdAndDelete(req.params.bucketId);
         
-        res.status(200).json({ message: 'Bucket deleted' });
+        res.status(200).json({ message: 'Bucket deleted Successfully!' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete bucket', error: error });
     }
