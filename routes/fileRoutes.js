@@ -9,7 +9,7 @@ const router = express.Router();
  * @swagger
  * /api/files/upload/{bucketId}:
  *   post:
- *     summary: Upload a file
+ *     summary: Upload/Update a file
  *     parameters:
  *       - in: path
  *         name: bucketId
@@ -64,7 +64,7 @@ router.get('/:fileId', getFile);
 
 /**
  * @swagger
- * /api/files/{bucketId}:
+ * /api/files/bucket/{bucketId}:
  *   get:
  *     summary: List all files in a bucket
  *     parameters:
