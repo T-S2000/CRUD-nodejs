@@ -1,4 +1,4 @@
-const { pinFileToIPFS } = require('../services/pinataService');
+const { pinFileToIPFS, unpinFileFromIPFS } = require('../services/pinataService');
 const File = require('../models/file');
 const axios = require('axios');
 const fs = require('fs');
@@ -7,17 +7,21 @@ const path = require('path');
 const uploadFile = async (req, res) => {
     try {
         const file = req.file;
+        if(!file) return res.status(404).json({ message: 'File not found' });
         const result = await pinFileToIPFS(file.path);
         
-        const newFile = new File({
-            name: file.originalname,
-            hash: result.IpfsHash,
-            bucketId: req.params.bucketId,
-        });
+        if(result.isDuplicate == false){
+            const newFile = new File({
+                name: file.originalname,
+                hash: result.IpfsHash,
+                bucketId: req.params.bucketId,
+            });
 
-        await newFile.save();
-
-        res.status(200).json(newFile);
+            await newFile.save();
+        }else{
+            await File.findOneAndUpdate({hash: result.IpfsHash},{timestamp: Date.now()},{returnOriginal: false});
+        }
+        return res.status(200).json(newFile);
     } catch (error) {
         res.status(500).json({ message: 'Failed to upload file', error: error });
     }
@@ -58,7 +62,10 @@ const listFiles = async (req, res) => {
 
 const deleteFile = async (req, res) => {
     try {
-        await File.findByIdAndDelete(req.params.fileId);
+        const file = await File.findByIdAndDelete(req.params.fileId);
+        if (file == null) return res.status(404).json({ message: 'File not found' });
+        await unpinFileFromIPFS(file.hash);
+
         res.status(200).json({ message: 'File deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete file', error: error });
