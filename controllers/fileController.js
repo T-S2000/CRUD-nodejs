@@ -1,8 +1,6 @@
 const { pinFileToIPFS, unpinFileFromIPFS } = require('../services/pinataService');
 const File = require('../models/file');
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 const uploadFile = async (req, res) => {
     try {
