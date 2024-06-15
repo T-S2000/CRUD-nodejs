@@ -1,4 +1,5 @@
 const Bucket = require('../models/Bucket');
+const File = require('../models/file');
 
 const createBucket = async (req, res) => {
     const { name, userId } = req.body;
@@ -22,7 +23,10 @@ const listBuckets = async (req, res) => {
 
 const deleteBucket = async (req, res) => {
     try {
+        const files = await File.find({bucketId: req.params.bucketId});
+        if(files.length > 0) return res.status(400).json({ message: 'Bucket contains files' });
         await Bucket.findByIdAndDelete(req.params.bucketId);
+        
         res.status(200).json({ message: 'Bucket deleted' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete bucket', error: error });
